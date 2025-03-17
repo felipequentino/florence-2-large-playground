@@ -21,7 +21,7 @@ with patch("transformers.dynamic_module_utils.get_imports", fixed_get_imports): 
     model = AutoModelForCausalLM.from_pretrained(model_path, attn_implementation="sdpa", trust_remote_code=True)
 
 processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
-model.to("cpu")
+model.to("cuda")
 
 # Dictionary to store color mappings
 color_map = {}
@@ -38,7 +38,7 @@ def run_example(task_prompt, image, text_input=None):
         prompt = task_prompt
     else:
         prompt = task_prompt + text_input
-    inputs = processor(text=prompt, images=image, return_tensors="pt")
+    inputs = processor(text=prompt, images=image, return_tensors="pt").to("cuda")
     generated_ids = model.generate(
       input_ids=inputs["input_ids"],
       pixel_values=inputs["pixel_values"],
